@@ -6,7 +6,9 @@ import com.app.session.config.handler.Http403Handler;
 import com.app.session.config.handler.LoginFailHandler;
 import com.app.session.config.handler.LoginSuccessHandler;
 import com.app.session.entity.Account;
+import com.app.session.entity.User;
 import com.app.session.repository.AccountRepository;
+import com.app.session.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -29,12 +31,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices;
 
+import java.util.Optional;
+
 @Configuration
 @EnableWebSecurity(debug = true)
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final UserRepository userRepository;
     private final AccountRepository accountRepository;
     private final ObjectMapper objectMapper;
 
@@ -50,12 +55,6 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(registry -> registry
-//                        .requestMatchers("/auth/login").permitAll()
-//                        .requestMatchers("/auth/signup").permitAll()
-//                        .requestMatchers("/user").hasAnyRole("USER")
-//                        .requestMatchers("/admin").hasAnyRole("ADMIN")
-//                        .requestMatchers("/admin").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') AND hasAuthority('WRITE')"))
-//                        .anyRequest().authenticated()
                         .anyRequest().permitAll()
                 )
 //                .formLogin(form -> form
@@ -64,12 +63,12 @@ public class SecurityConfig {
 //                        .usernameParameter("username")
 //                        .passwordParameter("password")
 //                        .defaultSuccessUrl("/")
-//                        .failureHandler(new LoginFailHandler())
+//                        .failureHandler(new LoginFailHandler(objectMapper))
 //                )
                 .addFilterBefore(emailPasswordAuthFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(e -> {
-                    e.accessDeniedHandler(new Http403Handler());
-                    e.authenticationEntryPoint(new Http401Handler());
+                    e.accessDeniedHandler(new Http403Handler(objectMapper));
+                    e.authenticationEntryPoint(new Http401Handler(objectMapper));
                 })
 //                .rememberMe(rememberMe -> rememberMe.rememberMeParameter("remember")
 //                        .alwaysRemember(false)
@@ -105,11 +104,11 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> {
-            Account account = accountRepository.findByEmail(username)
-                    .orElseThrow(() -> new UsernameNotFoundException(username + "을 찾을 수 없습니다."));
-
-            return new UserPrincipal(account);
+        return email -> {
+            Account account = accountRepository.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException(email + "을 찾을 수 없습니다."));
+            Optional<User> optionalUser = userRepository.findByAccount(account);
+            return new UserPrincipal(account, optionalUser.isPresent());
         };
     }
 

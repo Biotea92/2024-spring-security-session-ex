@@ -27,10 +27,10 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         log.info("[인증 성공] user={} 로그인에 성공했습니다.", principal.getUsername());
 
-        response.setContentLength(APPLICATION_JSON_VALUE.length());
+        response.setContentType(APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(UTF_8.name());
         response.setStatus(SC_OK);
 
-//        objectMapper.writeValue(response.getWriter(), null);
+        objectMapper.writeValue(response.getWriter(), String.format("%s 로그인에 성공했습니다.", principal.getUsername()));
     }
 }

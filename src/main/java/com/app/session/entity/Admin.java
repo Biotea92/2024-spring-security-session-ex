@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -24,4 +25,15 @@ public class Admin {
     @OneToOne
     @JoinColumn(name = "account_id", foreignKey = @ForeignKey(name = "FK_admin_account_id"))
     private Account account;
+
+    @Builder
+    public Admin(Account account) {
+        this.account = account;
+    }
+
+    public static Admin create(Account account) {
+        return Admin.builder()
+                .account(account)
+                .build();
+    }
 }

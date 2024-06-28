@@ -5,7 +5,8 @@ Content-Type: application/json
 {
   "email": "abc@gmail.com",
   "password": "1234",
-  "nickname": "woo"
+  "nickname": "woo",
+  "isAdmin": false
 }
 
 ### 로그인

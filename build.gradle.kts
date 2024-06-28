@@ -29,6 +29,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
 
     implementation("org.springframework.session:spring-session-jdbc")
+//    implementation("org.springframework.session:spring-session-redis")
 
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     runtimeOnly("com.h2database:h2")

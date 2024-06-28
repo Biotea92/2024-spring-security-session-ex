@@ -18,13 +18,14 @@ public class MainController {
     @GetMapping("/user")
     public String userPage(@AuthenticationPrincipal UserPrincipal principal) {
         Long accountId = principal.getAccountId();
-        return accountId + " :: 유저 페이지입니다. 🤣";
+        return String.format("%d :: 사용자 페이지입니다.", accountId);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/admin")
-    public String adminPage() {
-        return "관리자 페이지입니다. 🥰";
+    public String adminPage(@AuthenticationPrincipal UserPrincipal principal) {
+        Long accountId = principal.getAccountId();
+        return String.format("%d :: 관리자 페이지입니다.", accountId);
     }
 
 }
