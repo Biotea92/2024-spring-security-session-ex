@@ -81,7 +81,7 @@ public class SecurityConfig {
         filter.setSecurityContextRepository(new HttpSessionSecurityContextRepository());
 
         SpringSessionRememberMeServices rememberMeServices = new SpringSessionRememberMeServices();
-        rememberMeServices.setAlwaysRemember(true);
+        rememberMeServices.setRememberMeParameterName("rememberMe");
         rememberMeServices.setValiditySeconds(2592000);
         filter.setRememberMeServices(rememberMeServices);
         return filter;
