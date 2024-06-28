@@ -9,11 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class MainController {
 
-    @GetMapping("/")
-    public String mainPage() {
-        return "메인 페이지입니다.";
-    }
-
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/user")
     public String userPage(@AuthenticationPrincipal UserPrincipal principal) {

@@ -22,6 +22,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,6 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices;
 
 import java.util.Optional;
@@ -36,6 +38,7 @@ import java.util.Optional;
 @Configuration
 @EnableWebSecurity(debug = true)
 @EnableMethodSecurity
+@EnableRedisHttpSession
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -57,23 +60,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(registry -> registry
                         .anyRequest().permitAll()
                 )
-//                .formLogin(form -> form
-//                        .loginPage("/auth/login")
-//                        .loginProcessingUrl("/auth/login")
-//                        .usernameParameter("username")
-//                        .passwordParameter("password")
-//                        .defaultSuccessUrl("/")
-//                        .failureHandler(new LoginFailHandler(objectMapper))
-//                )
                 .addFilterBefore(emailPasswordAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                )
                 .exceptionHandling(e -> {
                     e.accessDeniedHandler(new Http403Handler(objectMapper));
                     e.authenticationEntryPoint(new Http401Handler(objectMapper));
                 })
-//                .rememberMe(rememberMe -> rememberMe.rememberMeParameter("remember")
-//                        .alwaysRemember(false)
-//                        .tokenValiditySeconds(2592000)
-//                )
                 .csrf(AbstractHttpConfigurer::disable)
                 .build();
     }
@@ -88,7 +82,6 @@ public class SecurityConfig {
 
         SpringSessionRememberMeServices rememberMeServices = new SpringSessionRememberMeServices();
         rememberMeServices.setAlwaysRemember(true);
-//        rememberMeServices.setRememberMeParameterName("remember");
         rememberMeServices.setValiditySeconds(2592000);
         filter.setRememberMeServices(rememberMeServices);
         return filter;
