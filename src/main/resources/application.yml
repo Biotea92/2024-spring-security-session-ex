@@ -26,6 +26,11 @@ spring:
     redis:
       namespace: spring:session
 
+server:
+  servlet:
+    session:
+      cookie:
+        name: REDIS_SESSION
 #  session:
 #    timeout: 86400
 
